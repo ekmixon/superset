@@ -145,8 +145,7 @@ def get_available_engine_specs() -> Dict[Type[BaseEngineSpec], Set[str]]:
                 driver = driver.decode()
             drivers[backend].add(driver)
 
-    available_engines = {}
-    for engine_spec in load_engine_specs():
-        available_engines[engine_spec] = drivers[engine_spec.engine]
-
-    return available_engines
+    return {
+        engine_spec: drivers[engine_spec.engine]
+        for engine_spec in load_engine_specs()
+    }

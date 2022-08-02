@@ -559,10 +559,7 @@ class SupersetAppInitializer:
         self.configure_auth_provider()
         self.configure_async_queries()
 
-        # Hook that provides administrators a handle on the Flask APP
-        # after initialization
-        flask_app_mutator = self.config["FLASK_APP_MUTATOR"]
-        if flask_app_mutator:
+        if flask_app_mutator := self.config["FLASK_APP_MUTATOR"]:
             flask_app_mutator(self.superset_app)
 
         self.init_views()
@@ -708,7 +705,7 @@ class SupersetAppInitializer:
         with self.superset_app.app_context():
             pessimistic_connection_handling(db.engine)
 
-        migrate.init_app(self.superset_app, db=db, directory=APP_DIR + "/migrations")
+        migrate.init_app(self.superset_app, db=db, directory=f"{APP_DIR}/migrations")
 
     def configure_wtf(self) -> None:
         if self.config["WTF_CSRF_ENABLED"]:

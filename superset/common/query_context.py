@@ -221,8 +221,7 @@ class QueryContext:
     def normalize_df(self, df: pd.DataFrame, query_object: QueryObject) -> pd.DataFrame:
         timestamp_format = None
         if self.datasource.type == "table":
-            dttm_col = self.datasource.get_column(query_object.granularity)
-            if dttm_col:
+            if dttm_col := self.datasource.get_column(query_object.granularity):
                 timestamp_format = dttm_col.python_date_format
 
         normalize_dttm_col(
@@ -448,14 +447,14 @@ class QueryContext:
 
         if query_obj and cache_key and not cache.is_loaded:
             try:
-                invalid_columns = [
+                if invalid_columns := [
                     col
                     for col in query_obj.columns
                     + query_obj.groupby
                     + get_column_names_from_metrics(query_obj.metrics or [])
-                    if col not in self.datasource.column_names and col != DTTM_ALIAS
-                ]
-                if invalid_columns:
+                    if col not in self.datasource.column_names
+                    and col != DTTM_ALIAS
+                ]:
                     raise QueryObjectValidationError(
                         _(
                             "Columns missing in datasource: %(invalid_columns)s",

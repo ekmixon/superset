@@ -608,7 +608,6 @@ class EncryptedField(fields.String):
 
 def encrypted_field_properties(self, field: Any, **_) -> Dict[str, Any]:  # type: ignore
     ret = {}
-    if isinstance(field, EncryptedField):
-        if self.openapi_version.major > 2:
-            ret["x-encrypted-extra"] = True
+    if isinstance(field, EncryptedField) and self.openapi_version.major > 2:
+        ret["x-encrypted-extra"] = True
     return ret

@@ -64,12 +64,12 @@ class UpdateDatasetCommand(UpdateMixin, BaseCommand):
         self.validate()
         if self._model:
             try:
-                dataset = DatasetDAO.update(
+                return DatasetDAO.update(
                     model=self._model,
                     properties=self._properties,
                     override_columns=self.override_columns,
                 )
-                return dataset
+
             except DAOUpdateFailedError as ex:
                 logger.exception(ex.exception)
                 raise DatasetUpdateFailedError() from ex
@@ -105,14 +105,10 @@ class UpdateDatasetCommand(UpdateMixin, BaseCommand):
         except ValidationError as ex:
             exceptions.append(ex)
 
-        # Validate columns
-        columns = self._properties.get("columns")
-        if columns:
+        if columns := self._properties.get("columns"):
             self._validate_columns(columns, exceptions)
 
-        # Validate metrics
-        metrics = self._properties.get("metrics")
-        if metrics:
+        if metrics := self._properties.get("metrics"):
             self._validate_metrics(metrics, exceptions)
 
         if exceptions:
@@ -165,9 +161,8 @@ class UpdateDatasetCommand(UpdateMixin, BaseCommand):
 
     @staticmethod
     def _get_duplicates(data: List[Dict[str, Any]], key: str) -> List[str]:
-        duplicates = [
+        return [
             name
             for name, count in Counter([item[key] for item in data]).items()
             if count > 1
         ]
-        return duplicates

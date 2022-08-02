@@ -94,8 +94,7 @@ class ChartDataCommand(BaseCommand):
     def load_query_context_from_cache(  # pylint: disable=no-self-use
         self, cache_key: str
     ) -> Dict[str, Any]:
-        cache_value = cache.get(cache_key)
-        if not cache_value:
+        if cache_value := cache.get(cache_key):
+            return cache_value["data"]
+        else:
             raise ChartDataCacheLoadError("Cached data not found")
-
-        return cache_value["data"]

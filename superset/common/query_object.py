@@ -205,8 +205,7 @@ class QueryObject:  # pylint: disable=too-many-instance-attributes
                     field.old_name,
                     field.new_name,
                 )
-                value = kwargs[field.old_name]
-                if value:
+                if value := kwargs[field.old_name]:
                     if hasattr(self, field.new_name):
                         logger.warning(
                             "The field `%s` is already populated, "
@@ -225,8 +224,7 @@ class QueryObject:  # pylint: disable=too-many-instance-attributes
                     field.old_name,
                     field.new_name,
                 )
-                value = kwargs[field.old_name]
-                if value:
+                if value := kwargs[field.old_name]:
                     if hasattr(self.extras, field.new_name):
                         logger.warning(
                             "The field `%s` is already populated in "
@@ -268,7 +266,7 @@ class QueryObject:  # pylint: disable=too-many-instance-attributes
         return error
 
     def to_dict(self) -> Dict[str, Any]:
-        query_object_dict = {
+        return {
             "apply_fetch_values_predicate": self.apply_fetch_values_predicate,
             "granularity": self.granularity,
             "groupby": self.groupby,
@@ -289,7 +287,6 @@ class QueryObject:  # pylint: disable=too-many-instance-attributes
             "columns": self.columns,
             "orderby": self.orderby,
         }
-        return query_object_dict
 
     def cache_key(self, **extra: Any) -> str:
         """
@@ -332,12 +329,10 @@ class QueryObject:  # pylint: disable=too-many-instance-attributes
             "titleColumn",
             "value",
         ]
-        annotation_layers = [
+        if annotation_layers := [
             {field: layer[field] for field in annotation_fields if field in layer}
             for layer in self.annotation_layers
-        ]
-        # only add to key if there are annotations present that affect the payload
-        if annotation_layers:
+        ]:
             cache_dict["annotation_layers"] = annotation_layers
 
         return md5_sha_from_dict(cache_dict, default=json_int_dttm_ser, ignore_nan=True)

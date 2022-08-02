@@ -169,9 +169,7 @@ class PostgresBaseEngineSpec(BaseEngineSpec):
         cls, cursor: Any, limit: Optional[int] = None
     ) -> List[Tuple[Any, ...]]:
         cursor.tzinfo_factory = FixedOffsetTimezone
-        if not cursor.description:
-            return []
-        return super().fetch_data(cursor, limit)
+        return super().fetch_data(cursor, limit) if cursor.description else []
 
     @classmethod
     def epoch_to_dttm(cls) -> str:
@@ -217,12 +215,8 @@ class PostgresEngineSpec(PostgresBaseEngineSpec, BasicParametersMixin):
         cursor.execute(sql)
 
         result = cursor.fetchone()[0]
-        match = re.search(r"cost=([\d\.]+)\.\.([\d\.]+)", result)
-        if match:
-            return {
-                "Start-up cost": float(match.group(1)),
-                "Total cost": float(match.group(2)),
-            }
+        if match := re.search(r"cost=([\d\.]+)\.\.([\d\.]+)", result):
+            return {"Start-up cost": float(match[1]), "Total cost": float(match[2])}
 
         return {}
 
@@ -290,8 +284,7 @@ class PostgresEngineSpec(PostgresBaseEngineSpec, BasicParametersMixin):
         ] = column_type_mappings,
     ) -> Union[ColumnSpec, None]:
 
-        column_spec = super().get_column_spec(native_type)
-        if column_spec:
+        if column_spec := super().get_column_spec(native_type):
             return column_spec
 
         return super().get_column_spec(

@@ -174,7 +174,6 @@ POSITION_JSON = """\
 
 def load_deck_dash() -> None:
     print("Loading deck.gl dashboard")
-    slices = []
     table = get_table_connector_registry()
     tbl = db.session.query(table).filter_by(table_name="long_lat").first()
     slice_data = {
@@ -213,8 +212,7 @@ def load_deck_dash() -> None:
         params=get_slice_json(slice_data),
     )
     merge_slice(slc)
-    slices.append(slc)
-
+    slices = [slc]
     slice_data = {
         "point_unit": "square_m",
         "row_limit": 5000,

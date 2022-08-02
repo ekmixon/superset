@@ -306,9 +306,8 @@ class ExtraCache:
                 and flt.get("subject") == column
                 and val
             ):
-                if remove_filter:
-                    if column not in self.removed_filters:
-                        self.removed_filters.append(column)
+                if remove_filter and column not in self.removed_filters:
+                    self.removed_filters.append(column)
                 if op in (
                     FilterOperator.IN.value,
                     FilterOperator.NOT_IN.value,
@@ -421,7 +420,7 @@ class BaseTemplateProcessor:
         "SELECT '2017-01-01T00:00:00'"
         """
         template = self._env.from_string(sql)
-        kwargs.update(self._context)
+        kwargs |= self._context
 
         context = validate_template_context(self.engine, kwargs)
         return template.render(context)
@@ -532,7 +531,7 @@ def get_template_processors() -> Dict[str, Any]:
     processors = current_app.config.get("CUSTOM_TEMPLATE_PROCESSORS", {})
     for engine, processor in DEFAULT_PROCESSORS.items():
         # do not overwrite engine-specific CUSTOM_TEMPLATE_PROCESSORS
-        if not engine in processors:
+        if engine not in processors:
             processors[engine] = processor
 
     return processors

@@ -218,7 +218,7 @@ class BigQueryEngineSpec(BaseEngineSpec):
         label_hashed = "_" + md5_sha_from_str(label)
 
         # if label starts with number, add underscore as first character
-        label_mutated = "_" + label if re.match(r"^\d", label) else label
+        label_mutated = f"_{label}" if re.match(r"^\d", label) else label
 
         # replace non-alphanumeric characters with underscores
         label_mutated = re.sub(r"[^\w]+", "_", label_mutated)
@@ -340,10 +340,7 @@ class BigQueryEngineSpec(BaseEngineSpec):
         engine = cls.get_engine(database)
         to_gbq_kwargs = {"destination_table": str(table), "project_id": engine.url.host}
 
-        # Add credentials if they are set on the SQLAlchemy dialect.
-        creds = engine.dialect.credentials_info
-
-        if creds:
+        if creds := engine.dialect.credentials_info:
             to_gbq_kwargs[
                 "credentials"
             ] = service_account.Credentials.from_service_account_info(creds)
@@ -369,9 +366,9 @@ class BigQueryEngineSpec(BaseEngineSpec):
         if not encrypted_extra:
             raise ValidationError("Missing service credentials")
 
-        project_id = encrypted_extra.get("credentials_info", {}).get("project_id")
-
-        if project_id:
+        if project_id := encrypted_extra.get("credentials_info", {}).get(
+            "project_id"
+        ):
             return f"{cls.default_driver}://{project_id}/?{query_params}"
 
         raise ValidationError("Invalid service credentials")
